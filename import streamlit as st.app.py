@@ -247,7 +247,7 @@ with tab2:
             mon = moneda.split('/')[0]
             col_r1.metric("Precio spot", f"{mon} {spot:,.2f}")
             col_r2.metric("Forward de mercado", f"{mon} {fwd:,.2f}")
-            col_r3.metric("Forward justo (ref TNA)", f"{mon} {fwd_justo:,.2f}",
+            col_r3.metric("Spot + Inversion (ref TNA)", f"{mon} {fwd_justo:,.2f}",
                          delta=f"{mon} {diferencia:+,.2f}",
                          delta_color="inverse" if diferencia < 0 else "normal")
 
