@@ -188,7 +188,7 @@ with tab2:
 
     ri = calcular_tasa_implicita(spot, fwd, int(dias_t))
     contango = ri["tasa_directa"] >= 0
-    situacion = "🟢forward > spot" if contango else "🔴forward < spot"
+    situacion = "🟢 forward > spot" if contango else "🔴 forward < spot"
 
     with col_b:
         st.markdown(f"**Situación de mercado:** {situacion}")
@@ -201,6 +201,11 @@ with tab2:
 
     # Comparación con tasa de referencia
     st.markdown("#### Comparación con tasa de referencia")
+    st.caption(
+        "Compará la tasa implícita del forward contra una inversión alternativa (plazo fijo, caución, fondo MM). "
+        "La comparación en TNA es válida solo si ambas operaciones tienen el mismo plazo. "
+        "La TEA es siempre la métrica correcta para comparar inversiones con distintos plazos o que capitalizan."
+    )
     col_ref1, col_ref2 = st.columns([1, 2], gap="large")
 
     with col_ref1:
@@ -209,7 +214,7 @@ with tab2:
             "TNA de referencia (%)",
             min_value=0.1,
             max_value=500.0,
-            value=60.0,
+            value=17.0,
             step=0.5,
             format="%.2f",
             disabled=not usar_ref,
@@ -217,28 +222,62 @@ with tab2:
 
     if usar_ref:
         tna_ref = tna_ref_pct / 100
+        tea_ref = (1 + tna_ref * int(dias_t) / 365) ** (365 / int(dias_t)) - 1
         fwd_justo = calcular_forward_justo(spot, tna_ref, int(dias_t))
         diferencia = fwd - fwd_justo
-        spread_tasas = (ri["tna"] - tna_ref) * 100
+
+        # Spread en TNA y TEA
+        spread_tna = (ri["tna"] - tna_ref) * 100
+        spread_tea = (ri["tea"] - tea_ref) * 100
+
+        # Veredicto basado en TEA (métrica correcta)
+        if abs(spread_tea) < 0.05:
+            veredicto = "Equivalentes en términos efectivos ✅"
+            v_color = "normal"
+        elif ri["tea"] > tea_ref:
+            veredicto = "Forward MEJOR que inversión alternativa 📈"
+            v_color = "normal"
+        else:
+            veredicto = "Inversión alternativa MEJOR que forward 📉"
+            v_color = "inverse"
 
         with col_ref2:
+            # Precios
             col_r1, col_r2, col_r3 = st.columns(3)
-            col_r1.metric("Forward justo (ref)", f"{moneda.split('/')[0]} {fwd_justo:,.2f}")
-            col_r2.metric("Forward de mercado", f"{moneda.split('/')[0]} {fwd:,.2f}")
+            mon = moneda.split('/')[0]
+            col_r1.metric("Precio spot", f"{mon} {spot:,.2f}")
+            col_r2.metric("Forward de mercado", f"{mon} {fwd:,.2f}")
+            col_r3.metric("Forward justo (ref TNA)", f"{mon} {fwd_justo:,.2f}",
+                         delta=f"{mon} {diferencia:+,.2f}",
+                         delta_color="inverse" if diferencia < 0 else "normal")
 
-            if abs(diferencia) < 0.01:
-                label = "Precio justo ✅"
-            elif diferencia > 0:
-                label = "Forward CARO vs. ref ⚠️"
-            else:
-                label = "Forward BARATO vs. ref 📉"
+            st.markdown("---")
 
-            col_r3.metric(
-                label,
-                f"{moneda.split('/')[0]} {diferencia:+,.2f}",
-                delta=f"Spread tasas: {spread_tasas:+.2f}%",
-                delta_color="inverse" if diferencia > 0 else "normal",
-            )
+            # Tabla comparativa TNA y TEA
+            st.markdown("**Comparación de tasas**")
+            df_comp = pd.DataFrame([
+                {
+                    "Métrica":        "Tasa directa del período",
+                    "Forward impl.":  f"{ri['tasa_directa'] * 100:+.4f}%",
+                    "Referencia":     f"{tna_ref * int(dias_t) / 365 * 100:.4f}%",
+                    "Spread":         f"{(ri['tasa_directa'] - tna_ref * int(dias_t) / 365) * 100:+.4f}%",
+                },
+                {
+                    "Métrica":        "TNA",
+                    "Forward impl.":  f"{ri['tna'] * 100:+.4f}%",
+                    "Referencia":     f"{tna_ref * 100:.4f}%",
+                    "Spread":         f"{spread_tna:+.4f}%",
+                },
+                {
+                    "Métrica":        "TEA ✅ (métrica correcta)",
+                    "Forward impl.":  f"{ri['tea'] * 100:+.4f}%",
+                    "Referencia":     f"{tea_ref * 100:.4f}%",
+                    "Spread":         f"{spread_tea:+.4f}%",
+                },
+            ])
+            st.dataframe(df_comp, use_container_width=True, hide_index=True)
+
+            st.info(f"**Conclusión:** {veredicto}")
 
     st.divider()
 
