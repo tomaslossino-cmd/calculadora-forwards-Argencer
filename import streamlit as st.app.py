@@ -381,41 +381,31 @@ with tab3:
             <span class="{tasa_class}">{tasa}</span>
         </div>"""
 
-    st.markdown(f"""
-    <div style="border-radius:10px; overflow:hidden; border: 1px solid #c8c4b4;">
+    html_cuadro = (
+        '<div style="border-radius:10px; overflow:hidden; border: 1px solid #c8c4b4;">'
 
-        <!-- SECCIÓN ARS -->
-        <div class="seccion-header">
-            TASAS EN ARS &nbsp; <span class="seccion-badge">PESOS</span>
-        </div>
-        <div class="col-header">
-            <span>INSTRUMENTO</span>
-            <span>TNA — RENDIMIENTO ACTUALIZADO</span>
-        </div>
-        {fila("Plazo fijo", ars_pf, dot="green")}
-        {fila("Caución 1/3 días", ars_cau, dot="green")}
-        {fila("Fondo MM", ars_fmm, dot="green")}
-        {fila("Fondos recomendados por Argencer", ars_frec, dot="gold", gold=True)}
+        # SECCIÓN ARS
+        '<div class="seccion-header">TASAS EN ARS &nbsp; <span class="seccion-badge">PESOS</span></div>'
+        '<div class="col-header"><span>INSTRUMENTO</span><span>TNA — RENDIMIENTO ACTUALIZADO</span></div>'
+        + fila("Plazo fijo", ars_pf, dot="green")
+        + fila("Caución 1/3 días", ars_cau, dot="green")
+        + fila("Fondo MM", ars_fmm, dot="green")
+        + fila("Fondos recomendados por Argencer", ars_frec, dot="gold", gold=True)
 
-        <!-- SECCIÓN USD -->
-        <div class="seccion-header">
-            TASAS EN USD &nbsp; <span class="seccion-badge">DÓLARES</span>
-        </div>
-        <div class="col-header">
-            <span>INSTRUMENTO</span>
-            <span>TNA — RENDIMIENTO ACTUALIZADO</span>
-        </div>
-        {fila("Plazo fijo", usd_pf, dot="blue")}
-        {fila("Caución 1/3 días", usd_cau, dot="blue")}
-        {fila("Fondo MM", usd_fmm, dot="blue")}
-        {fila("Fondo de ON", usd_fon, dot="blue")}
-        {fila("Fondo LATAM", usd_lat, dot="blue")}
+        # SECCIÓN USD
+        + '<div class="seccion-header">TASAS EN USD &nbsp; <span class="seccion-badge">DÓLARES</span></div>'
+        + '<div class="col-header"><span>INSTRUMENTO</span><span>TNA — RENDIMIENTO ACTUALIZADO</span></div>'
+        + fila("Plazo fijo", usd_pf, dot="blue")
+        + fila("Caución 1/3 días", usd_cau, dot="blue")
+        + fila("Fondo MM", usd_fmm, dot="blue")
+        + fila("Fondo de ON", usd_fon, dot="blue")
+        + fila("Fondo LATAM", usd_lat, dot="blue")
 
-        <!-- FOOTER -->
-        <div class="footer-bar">
-            <span>Los rendimientos son orientativos y pueden variar.</span>
-            <span>Argencer · Corredores de Cereales y Oleaginosas</span>
-        </div>
-
-    </div>
-    """, unsafe_allow_html=True)
+        # FOOTER
+        + '<div class="footer-bar">'
+        + '<span>Los rendimientos son orientativos y pueden variar.</span>'
+        + '<span>Argencer · Corredores de Cereales y Oleaginosas</span>'
+        + '</div>'
+        + '</div>'
+    )
+    st.markdown(html_cuadro, unsafe_allow_html=True)
