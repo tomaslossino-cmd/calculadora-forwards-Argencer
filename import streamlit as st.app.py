@@ -358,30 +358,18 @@ with tab3:
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("---")
-    st.markdown("##### ✏️ Editá las tasas antes de mostrar el cuadro")
+    # ── TASAS — editá estos valores cuando cambien las tasas de mercado ─────────
+    ars_pf   = "17%"
+    ars_cau  = "20% – 22%"
+    ars_fmm  = "16,0%"
+    ars_frec = "32%"
 
-    # ── Formulario editable ───────────────────────────────────────────────────
-    with st.expander("Tasas en ARS — Pesos", expanded=True):
-        col1, col2 = st.columns(2)
-        with col1:
-            ars_pf   = st.text_input("Plazo fijo (ARS)",                value="17%",       key="ars_pf")
-            ars_cau  = st.text_input("Caución 1/3 días (ARS)",          value="20% – 22%", key="ars_cau")
-        with col2:
-            ars_fmm  = st.text_input("Fondo MM (ARS)",                  value="16,0%",     key="ars_fmm")
-            ars_frec = st.text_input("Fondos recomendados por Argencer", value="32%",       key="ars_frec")
-
-    with st.expander("Tasas en USD — Dólares", expanded=True):
-        col3, col4 = st.columns(2)
-        with col3:
-            usd_pf   = st.text_input("Plazo fijo (USD)",       value="2%",      key="usd_pf")
-            usd_cau  = st.text_input("Caución 1/3 días (USD)", value="2%",      key="usd_cau")
-            usd_fmm  = st.text_input("Fondo MM (USD)",         value="1,9%",    key="usd_fmm")
-        with col4:
-            usd_fon  = st.text_input("Fondo de ON (USD)",      value="6,5%",    key="usd_fon")
-            usd_lat  = st.text_input("Fondo LATAM (USD)",      value="5% – 6%", key="usd_lat")
-
-    st.markdown("---")
+    usd_pf   = "2%"
+    usd_cau  = "2%"
+    usd_fmm  = "1,9%"
+    usd_fon  = "6,5%"
+    usd_lat  = "5% – 6%"
+    # ─────────────────────────────────────────────────────────────────────────
 
     # ── Cuadro estético ───────────────────────────────────────────────────────
     def fila(instrumento, tasa, dot="green", gold=False):
