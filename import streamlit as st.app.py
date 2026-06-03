@@ -188,7 +188,7 @@ with tab2:
 
     ri = calcular_tasa_implicita(spot, fwd, int(dias_t))
     contango = ri["tasa_directa"] >= 0
-    situacion = "🟢 forward > spot" if contango else "🔴 forward < spot"
+    situacion = "🟢 CONTANGO (forward > spot)" if contango else "🔴 BACKWARDATION (forward < spot)"
 
     with col_b:
         st.markdown(f"**Situación de mercado:** {situacion}")
@@ -210,8 +210,8 @@ with tab2:
 
     with col_ref1:
         usar_ref = st.toggle("Activar comparación", value=False)
-        tna_ref_pct = st.number_input(
-            "TNA de referencia (%)",
+        tasa_ref_pct = st.number_input(
+            "Tasa de referencia — TIR / TEA (%)",
             min_value=0.1,
             max_value=500.0,
             value=17.0,
@@ -221,8 +221,9 @@ with tab2:
         )
 
     if usar_ref:
-        tna_ref = tna_ref_pct / 100
-        tea_ref = (1 + tna_ref * int(dias_t) / 365) ** (365 / int(dias_t)) - 1
+        tasa_ref = tasa_ref_pct / 100
+        tna_ref = tasa_ref  # alias para forward justo
+        tea_ref = tasa_ref  # la referencia ya es TEA/TIR, no se recapitaliza
         fwd_justo = calcular_forward_justo(spot, tna_ref, int(dias_t))
         diferencia = fwd - fwd_justo
 
@@ -247,7 +248,7 @@ with tab2:
             mon = moneda.split('/')[0]
             col_r1.metric("Precio spot", f"{mon} {spot:,.2f}")
             col_r2.metric("Forward de mercado", f"{mon} {fwd:,.2f}")
-            col_r3.metric("Spot + Inversion (ref TNA)", f"{mon} {fwd_justo:,.2f}",
+            col_r3.metric("Forward justo (ref TNA)", f"{mon} {fwd_justo:,.2f}",
                          delta=f"{mon} {diferencia:+,.2f}",
                          delta_color="inverse" if diferencia < 0 else "normal")
 
@@ -257,22 +258,18 @@ with tab2:
             st.markdown("**Comparación de tasas**")
             df_comp = pd.DataFrame([
                 {
-                    "Métrica":        "Tasa directa del período",
-                    "Forward impl.":  f"{ri['tasa_directa'] * 100:+.4f}%",
-                    "Referencia":     f"{tna_ref * int(dias_t) / 365 * 100:.4f}%",
-                    "Spread":         f"{(ri['tasa_directa'] - tna_ref * int(dias_t) / 365) * 100:+.4f}%",
+                    "Métrica":               "TNA implícita forward",
+                    "Forward impl.":         f"{ri['tna'] * 100:.4f}%",
+                    "Referencia (TIR/TEA)":  "—",
+                    "Spread":                "—",
+                    "Nota":                  "No comparable directamente con TIR/TEA",
                 },
                 {
-                    "Métrica":        "TNA",
-                    "Forward impl.":  f"{ri['tna'] * 100:+.4f}%",
-                    "Referencia":     f"{tna_ref * 100:.4f}%",
-                    "Spread":         f"{spread_tna:+.4f}%",
-                },
-                {
-                    "Métrica":        "TEA ✅ (métrica correcta)",
-                    "Forward impl.":  f"{ri['tea'] * 100:+.4f}%",
-                    "Referencia":     f"{tea_ref * 100:.4f}%",
-                    "Spread":         f"{spread_tea:+.4f}%",
+                    "Métrica":               "TEA implícita forward ✅",
+                    "Forward impl.":         f"{ri['tea'] * 100:.4f}%",
+                    "Referencia (TIR/TEA)":  f"{tasa_ref * 100:.4f}%",
+                    "Spread":                f"{spread_tea:+.4f}%",
+                    "Nota":                  "Comparación correcta",
                 },
             ])
             st.dataframe(df_comp, use_container_width=True, hide_index=True)
