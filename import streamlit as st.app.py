@@ -61,7 +61,7 @@ st.set_page_config(
 st.title("🌾 Calculadora de Contratos Forward Agrícolas")
 st.caption("Herramienta interna — Corredora de granos")
 
-tab1, tab2 = st.tabs(["💵 Descuento de contrato", "📊 Tasa implícita spot / forward"])
+tab1, tab2, tab3 = st.tabs(["💵 Descuento de contrato", "📊 Tasa implícita spot / forward", "📋 Tasas disponibles en el mercado"])
 
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -121,7 +121,7 @@ with tab1:
 | TNA | {res['tna'] * 100:.2f}% |
 | Factor de descuento | {res['factor_descuento']:.6f} |
 | Monto presente | $ {res['valor_presente']:,.2f} |
-| Interés  | $ {res['interes_descontado']:,.2f} |
+| Interés (costo Nera) | $ {res['interes_descontado']:,.2f} |
 | % descontado | {res['porcentaje_descontado']:.2f}% |
 | TEA | {res['tea'] * 100:.2f}% |
 """)
@@ -257,3 +257,177 @@ with tab2:
 
     df_plazos = pd.DataFrame(filas_plazos)
     st.dataframe(df_plazos, use_container_width=True, hide_index=True)
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# TAB 3 — Tasas disponibles en el mercado por instrumento (Argencer)
+# ════════════════════════════════════════════════════════════════════════════
+
+with tab3:
+    from datetime import date
+
+    st.markdown(
+        """
+        <style>
+        .argencer-header {
+            background: #1a2e4a;
+            border-radius: 10px;
+            padding: 18px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0;
+        }
+        .argencer-logo-text { color: white; font-size: 26px; font-weight: 700; letter-spacing: 2px; }
+        .argencer-sub { color: #a0b4c8; font-size: 11px; letter-spacing: 3px; margin-top: 2px; }
+        .argencer-date { background: #2c4260; color: #d0dcea; border-radius: 8px; padding: 8px 18px; font-size: 14px; }
+        .seccion-header {
+            background: #1a2e4a;
+            color: white;
+            padding: 12px 20px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 0;
+        }
+        .seccion-badge {
+            background: #2c4260;
+            color: #d0dcea;
+            border-radius: 6px;
+            padding: 3px 14px;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+        .col-header {
+            background: #e8ede6;
+            color: #4a6741;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            padding: 8px 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .instrumento-row {
+            background: #f5f3ec;
+            border-bottom: 1px solid #e0ddd4;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 16px;
+        }
+        .instrumento-row:nth-child(even) { background: #eeebe0; }
+        .dot-green { color: #4a7a3a; font-size: 12px; margin-right: 10px; }
+        .dot-blue  { color: #1a2e4a; font-size: 12px; margin-right: 10px; }
+        .dot-gold  { color: #b8860b; font-size: 12px; margin-right: 10px; }
+        .tasa-val  { color: #2c3e2d; font-size: 17px; font-weight: 500; }
+        .tasa-gold { color: #b8860b; font-size: 17px; font-weight: 500; }
+        .footer-bar {
+            background: #1a2e4a;
+            color: #a0b4c8;
+            font-size: 11px;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            border-radius: 0 0 10px 10px;
+            margin-top: 0;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    hoy = date.today()
+    dias_es = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"]
+    meses_es = ["enero","febrero","marzo","abril","mayo","junio",
+                "julio","agosto","septiembre","octubre","noviembre","diciembre"]
+    fecha_str = f"{dias_es[hoy.weekday()]}, {hoy.day} de {meses_es[hoy.month-1]} de {hoy.year}"
+
+    # ── Header ───────────────────────────────────────────────────────────────
+    st.markdown(f"""
+    <div class="argencer-header">
+        <div>
+            <div class="argencer-logo-text">⊙ &nbsp; ARGENCER</div>
+            <div class="argencer-sub">CORREDORES DE CEREALES Y OLEAGINOSAS</div>
+        </div>
+        <div class="argencer-date">{fecha_str}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("---")
+    st.markdown("##### ✏️ Editá las tasas antes de mostrar el cuadro")
+
+    # ── Formulario editable ───────────────────────────────────────────────────
+    with st.expander("Tasas en ARS — Pesos", expanded=True):
+        col1, col2 = st.columns(2)
+        with col1:
+            ars_pf   = st.text_input("Plazo fijo (ARS)",                value="17%",       key="ars_pf")
+            ars_cau  = st.text_input("Caución 1/3 días (ARS)",          value="20% – 22%", key="ars_cau")
+        with col2:
+            ars_fmm  = st.text_input("Fondo MM (ARS)",                  value="16,0%",     key="ars_fmm")
+            ars_frec = st.text_input("Fondos recomendados por Argencer", value="32%",       key="ars_frec")
+
+    with st.expander("Tasas en USD — Dólares", expanded=True):
+        col3, col4 = st.columns(2)
+        with col3:
+            usd_pf   = st.text_input("Plazo fijo (USD)",       value="2%",      key="usd_pf")
+            usd_cau  = st.text_input("Caución 1/3 días (USD)", value="2%",      key="usd_cau")
+            usd_fmm  = st.text_input("Fondo MM (USD)",         value="1,9%",    key="usd_fmm")
+        with col4:
+            usd_fon  = st.text_input("Fondo de ON (USD)",      value="6,5%",    key="usd_fon")
+            usd_lat  = st.text_input("Fondo LATAM (USD)",      value="5% – 6%", key="usd_lat")
+
+    st.markdown("---")
+
+    # ── Cuadro estético ───────────────────────────────────────────────────────
+    def fila(instrumento, tasa, dot="green", gold=False):
+        dot_class = f"dot-{dot}"
+        tasa_class = "tasa-gold" if gold else "tasa-val"
+        return f"""
+        <div class="instrumento-row">
+            <span><span class="{dot_class}">●</span>{instrumento}</span>
+            <span class="{tasa_class}">{tasa}</span>
+        </div>"""
+
+    st.markdown(f"""
+    <div style="border-radius:10px; overflow:hidden; border: 1px solid #c8c4b4;">
+
+        <!-- SECCIÓN ARS -->
+        <div class="seccion-header">
+            TASAS EN ARS &nbsp; <span class="seccion-badge">PESOS</span>
+        </div>
+        <div class="col-header">
+            <span>INSTRUMENTO</span>
+            <span>TNA — RENDIMIENTO ACTUALIZADO</span>
+        </div>
+        {fila("Plazo fijo", ars_pf, dot="green")}
+        {fila("Caución 1/3 días", ars_cau, dot="green")}
+        {fila("Fondo MM", ars_fmm, dot="green")}
+        {fila("Fondos recomendados por Argencer", ars_frec, dot="gold", gold=True)}
+
+        <!-- SECCIÓN USD -->
+        <div class="seccion-header">
+            TASAS EN USD &nbsp; <span class="seccion-badge">DÓLARES</span>
+        </div>
+        <div class="col-header">
+            <span>INSTRUMENTO</span>
+            <span>TNA — RENDIMIENTO ACTUALIZADO</span>
+        </div>
+        {fila("Plazo fijo", usd_pf, dot="blue")}
+        {fila("Caución 1/3 días", usd_cau, dot="blue")}
+        {fila("Fondo MM", usd_fmm, dot="blue")}
+        {fila("Fondo de ON", usd_fon, dot="blue")}
+        {fila("Fondo LATAM", usd_lat, dot="blue")}
+
+        <!-- FOOTER -->
+        <div class="footer-bar">
+            <span>Los rendimientos son orientativos y pueden variar.</span>
+            <span>Argencer · Corredores de Cereales y Oleaginosas</span>
+        </div>
+
+    </div>
+    """, unsafe_allow_html=True)
