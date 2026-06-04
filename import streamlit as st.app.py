@@ -518,14 +518,24 @@ with tab4:
         tna_spot_fwd = 0.0
         tna_desc_fwd = 0.0
 
-    # ── NUEVA SECCIÓN DE RESULTADOS: PRECIOS + TASAS ──
+    # ── NUEVA SECCIÓN DE RESULTADOS: PRECIOS + TASAS + PASES ──
     p1, p2 = st.columns(2)
     p1.metric("Precio Spot (U$S)", f"U$S {p_spot_est:.2f}")
     p2.metric("Precio Descontado (pago ahora, entrega futura) (U$S)", f"U$S {p_desc_est:.2f}")
 
-    t1, t2 = st.columns(2)
-    t1.metric("TNA Implícita Spot vs. Forward (= PASE)", f"{tna_spot_fwd:.2f}%")
-    t2.metric("TNA Implícita Descontado vs. Forward", f"{tna_desc_fwd:.2f}%")
+    st.markdown("<br>", unsafe_allow_html=True) # Espacio sutil
+
+    t1, t2, t3 = st.columns(3)
+    
+    # Cálculos de diferencias en USD
+    pase_fwd_spot = p_forward_est - p_spot_est
+    pase_fwd_desc = p_forward_est - p_desc_est
+    dif_desc_spot = p_desc_est - p_spot_est
+    
+    # Se usa delta_color="off" para que el texto salga en un gris profesional
+    t1.metric("TNA Implícita Spot vs. Forward", f"{tna_spot_fwd:.2f}%", f"Pase Fwd-Spot: U$S {pase_fwd_spot:.2f}", delta_color="off")
+    t2.metric("TNA Implícita Descontado vs. Forward", f"{tna_desc_fwd:.2f}%", f"Pase Fwd-Desc: U$S {pase_fwd_desc:.2f}", delta_color="off")
+    t3.metric("Diferencia Descontado vs. Spot", f"U$S {dif_desc_spot:.2f}", "Brecha en dólares", delta_color="off")
 
     # CONCLUSIÓN INICIAL (Necesidad de Liquidez)
     st.markdown("#### 💡 Conclusión inicial (Si necesitás la plata ahora):")
