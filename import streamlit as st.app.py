@@ -135,102 +135,162 @@ with tab1:
     st.markdown(
         f"""
         <style>
-        .tasa-table {{
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
+        .ti-wrap {{
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #c8c4b4;
             margin-top: 8px;
+            font-family: sans-serif;
         }}
-        .tasa-table th {{
+
+        /* ── Bloque de precios ── */
+        .ti-precios-header {{
             background: #1a2e4a;
+            display: grid;
+            grid-template-columns: 30% 1fr 1fr 1fr;
             color: white;
-            padding: 10px 14px;
-            text-align: center;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }}
-        .tasa-table th.th-left {{ text-align: left; }}
-        .tasa-table td {{
-            padding: 10px 14px;
-            text-align: center;
-            border-bottom: 1px solid #ddd;
-        }}
-        .tasa-table td.td-label {{
-            text-align: left;
-            font-weight: 600;
-            color: #1a2e4a;
-            background: #f0f4f8;
-        }}
-        .tasa-table tr.fila-precios td {{
-            background: #e8ede6;
+            font-size: 11px;
             font-weight: 700;
+            letter-spacing: 1.5px;
+            padding: 10px 20px;
+            text-transform: uppercase;
+        }}
+        .ti-precios-header span {{ text-align: center; }}
+        .ti-precios-header span:first-child {{ text-align: left; }}
+
+        .ti-precios-row {{
+            background: #e8ede6;
+            display: grid;
+            grid-template-columns: 30% 1fr 1fr 1fr;
+            padding: 14px 20px;
+            border-bottom: 2px solid #1a2e4a;
+        }}
+        .ti-precio-val {{
+            text-align: center;
+            font-size: 17px;
+            font-weight: 700;
+            color: #1a2e4a;
+        }}
+
+        /* ── Bloques de tasas ── */
+        .ti-tasa-header {{
+            background: #2c4260;
+            display: grid;
+            grid-template-columns: 30% 1fr 1fr 1fr;
+            color: #d0dcea;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            padding: 8px 20px;
+            text-transform: uppercase;
+        }}
+        .ti-tasa-header span {{ text-align: center; }}
+        .ti-tasa-header span:first-child {{ text-align: left; }}
+
+        .ti-tasa-row {{
+            background: #f5f3ec;
+            display: grid;
+            grid-template-columns: 30% 1fr 1fr 1fr;
+            padding: 14px 20px;
+            align-items: center;
+            border-bottom: 1px solid #e0ddd4;
+        }}
+        .ti-tasa-row:last-child {{ border-bottom: none; }}
+
+        .ti-label {{
+            font-size: 13px;
+            font-weight: 700;
+            color: #1a2e4a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }}
+        .ti-dot {{
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+        }}
+        .ti-dot-green {{ background: #4a7a3a; }}
+        .ti-dot-gold  {{ background: #b8860b; }}
+
+        .ti-val {{
+            text-align: center;
             font-size: 15px;
             color: #2c3e2d;
         }}
-        .tasa-table tr.fila-precios td.td-spacer {{
-            background: white;
-            border: none;
+        .ti-tna {{
+            text-align: center;
+            font-size: 16px;
+            font-weight: 700;
+            color: #4a6741;
         }}
-        .tasa-table tr:last-child td {{ border-bottom: none; }}
+        .ti-footer {{
+            background: #1a2e4a;
+            color: #a0b4c8;
+            font-size: 11px;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+        }}
         </style>
 
-        <table class="tasa-table">
+        <div class="ti-wrap">
 
           <!-- PRIMERA FILA: precios -->
-          <thead>
-            <tr>
-              <th class="th-left" style="width:32%"></th>
-              <th>Precio Spot (U$S)</th>
-              <th>Precio Forward (U$S)</th>
-              <th colspan="2">Precio Venta Futura/Pago ahora (U$S)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="fila-precios">
-              <td class="td-spacer"></td>
-              <td>U$S {p_spot_est:,.2f}</td>
-              <td>U$S {p_forward_est:,.2f}</td>
-              <td colspan="2">U$S {p_desc_est:,.2f}</td>
-            </tr>
-          </tbody>
+          <div class="ti-precios-header">
+            <span></span>
+            <span>Precio Spot (U$S)</span>
+            <span>Precio Forward (U$S)</span>
+            <span>Venta Futura / Pago ahora (U$S)</span>
+          </div>
+          <div class="ti-precios-row">
+            <div></div>
+            <div class="ti-precio-val">U$S {p_spot_est:,.2f}</div>
+            <div class="ti-precio-val">U$S {p_forward_est:,.2f}</div>
+            <div class="ti-precio-val">U$S {p_desc_est:,.2f}</div>
+          </div>
 
           <!-- SEGUNDA FILA: Spot vs Forward -->
-          <thead>
-            <tr>
-              <th class="th-left"></th>
-              <th colspan="2">Dif. en USD</th>
-              <th>Tasa directa</th>
-              <th>TNA Implícita Spot vs. Forward</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="td-label">Spot vs Forward</td>
-              <td colspan="2">U$S {dif_spot_fwd:+,.2f}</td>
-              <td>{tasa_directa_spot_fwd:.2f}%</td>
-              <td><strong>{tna_spot_fwd:.2f}%</strong></td>
-            </tr>
-          </tbody>
+          <div class="ti-tasa-header">
+            <span>Comparación</span>
+            <span>Dif. en USD</span>
+            <span>Tasa directa</span>
+            <span>TNA Implícita</span>
+          </div>
+          <div class="ti-tasa-row">
+            <div class="ti-label">
+              <span class="ti-dot ti-dot-green"></span>
+              Spot vs Forward
+            </div>
+            <div class="ti-val">U$S {dif_spot_fwd:+,.2f}</div>
+            <div class="ti-val">{tasa_directa_spot_fwd:.2f}%</div>
+            <div class="ti-tna">{tna_spot_fwd:.2f}%</div>
+          </div>
 
           <!-- TERCERA FILA: Venta Futura vs Forward -->
-          <thead>
-            <tr>
-              <th class="th-left"></th>
-              <th colspan="2">Dif. en USD</th>
-              <th>Tasa directa</th>
-              <th>TNA Implícita Spot vs. Forward</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="td-label">Venta Futura/Pago ahora VS Forward</td>
-              <td colspan="2">U$S {dif_desc_fwd:+,.2f}</td>
-              <td>{tasa_directa_desc_fwd:.2f}%</td>
-              <td><strong>{tna_desc_fwd:.2f}%</strong></td>
-            </tr>
-          </tbody>
+          <div class="ti-tasa-header">
+            <span>Comparación</span>
+            <span>Dif. en USD</span>
+            <span>Tasa directa</span>
+            <span>TNA Implícita</span>
+          </div>
+          <div class="ti-tasa-row">
+            <div class="ti-label">
+              <span class="ti-dot ti-dot-gold"></span>
+              Venta Futura / Pago ahora VS Forward
+            </div>
+            <div class="ti-val">U$S {dif_desc_fwd:+,.2f}</div>
+            <div class="ti-val">{tasa_directa_desc_fwd:.2f}%</div>
+            <div class="ti-tna">{tna_desc_fwd:.2f}%</div>
+          </div>
 
-        </table>
+          <div class="ti-footer">
+            <span>TNA = Tasa Directa × (365 / días al vencimiento)</span>
+            <span>Plazo: {dias_plazo_est} días — Venc. {fecha_objetivo.strftime('%d/%m/%Y')}</span>
+          </div>
+
+        </div>
         """,
         unsafe_allow_html=True,
     )
