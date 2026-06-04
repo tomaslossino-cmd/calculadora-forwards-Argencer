@@ -1,10 +1,3 @@
-¡Me parece un agregado fundamental! La **Tasa Directa** es el número real y crudo de rentabilidad en ese período de tiempo sin anualizar, por lo que tenerla a la vista justo debajo de la TNA te da la foto completa (la tasa real que ganás vs la tasa de referencia anualizada para comparar contra otros instrumentos).
-
-Para que la estética de la pantalla no se rompa y mantenga esa forma de "embudo" profesional, coloqué esta nueva métrica **justo debajo** de la TNA Implícita en la misma columna, para que la lectura sea hacia abajo (Precio -> TNA -> Tasa Directa).
-
-Acá tenés el código finalizado. Solo tenés que ir al lápiz ✏️ en tu GitHub, reemplazar el código viejo, pegar este y darle a guardar:
-
-```python
 """
 Calculadora de Contratos Forward Agrícolas e Inversiones
 ========================================================
@@ -599,5 +592,3 @@ with tab4:
 
     df_sim = pd.DataFrame(filas)
     st.dataframe(df_sim, use_container_width=True, hide_index=True)
-
-```
