@@ -1,3 +1,10 @@
+¡Me parece un agregado fundamental! La **Tasa Directa** es el número real y crudo de rentabilidad en ese período de tiempo sin anualizar, por lo que tenerla a la vista justo debajo de la TNA te da la foto completa (la tasa real que ganás vs la tasa de referencia anualizada para comparar contra otros instrumentos).
+
+Para que la estética de la pantalla no se rompa y mantenga esa forma de "embudo" profesional, coloqué esta nueva métrica **justo debajo** de la TNA Implícita en la misma columna, para que la lectura sea hacia abajo (Precio -> TNA -> Tasa Directa).
+
+Acá tenés el código finalizado. Solo tenés que ir al lápiz ✏️ en tu GitHub, reemplazar el código viejo, pegar este y darle a guardar:
+
+```python
 """
 Calculadora de Contratos Forward Agrícolas e Inversiones
 ========================================================
@@ -63,6 +70,7 @@ st.set_page_config(
 st.title("🌾 Argencer- Herramientas Financieras Interactivas")
 st.caption("Herramienta interna — Corredora de granos Argencer")
 
+# Nuevo orden de las pestañas
 tab1, tab2, tab3, tab4 = st.tabs([
     "⚖️ Estrategia: Spot vs Fwd vs Venta Futura/Pago ahora",
     "📋 Tasas de mercado",
@@ -129,13 +137,14 @@ with tab1:
     
     # Cálculos matemáticos (Pase)
     if dias_plazo_est > 0:
-        tna_spot_fwd = ((p_forward_est / p_spot_est) - 1) * (365 / dias_plazo_est) * 100
+        tasa_directa_spot_fwd = ((p_forward_est / p_spot_est) - 1) * 100
+        tna_spot_fwd = tasa_directa_spot_fwd * (365 / dias_plazo_est)
         tna_desc_fwd = ((p_forward_est / p_desc_est) - 1) * (365 / dias_plazo_est) * 100
     else:
+        tasa_directa_spot_fwd = 0.0
         tna_spot_fwd = 0.0
         tna_desc_fwd = 0.0
 
-    # ── DISEÑO DE EMBUDO: 3 Columnas para Precios y 2 para Tasas ──
     p1, p2, p3 = st.columns(3)
     p1.metric("Precio Spot (U$S)", f"U$S {p_spot_est:.2f}")
     p2.metric("Precio Forward (U$S)", f"U$S {p_forward_est:.2f}")
@@ -143,15 +152,24 @@ with tab1:
 
     st.markdown("<br>", unsafe_allow_html=True) # Espacio sutil
 
-    t1, t2 = st.columns(2)
+    t1, t2, t3 = st.columns(3)
     
     # Cálculos de diferencias en USD
     pase_fwd_spot = p_forward_est - p_spot_est
     pase_fwd_desc = p_forward_est - p_desc_est
+    dif_desc_spot = p_desc_est - p_spot_est
     
-    # Se usa delta_color="off" para que el texto salga en un gris profesional
-    t1.metric("TNA Implícita Spot vs. Forward", f"{tna_spot_fwd:.2f}%", f"Pase Fwd-Spot: U$S {pase_fwd_spot:.2f}", delta_color="off")
-    t2.metric("TNA Implícita Venta Futura/Pago ahora vs. Forward", f"{tna_desc_fwd:.2f}%", f"Pase Fwd-Venta Futura: U$S {pase_fwd_desc:.2f}", delta_color="off")
+    with t1:
+        st.metric("TNA Implícita Spot vs. Forward", f"{tna_spot_fwd:.2f}%", f"Pase Fwd-Spot: U$S {pase_fwd_spot:.2f}", delta_color="off")
+        st.markdown("<br>", unsafe_allow_html=True) # Espacio para acomodar visualmente
+        # Nueva Tasa Directa agregada debajo
+        st.metric("Tasa Directa Spot vs. Forward", f"{tasa_directa_spot_fwd:.2f}%", f"Pase Fwd-Spot: U$S {pase_fwd_spot:.2f}", delta_color="off")
+
+    with t2:
+        st.metric("TNA Implícita Venta Futura/Pago ahora vs. Forward", f"{tna_desc_fwd:.2f}%", f"Pase Fwd-Venta Futura: U$S {pase_fwd_desc:.2f}", delta_color="off")
+
+    with t3:
+        st.metric("Diferencia Venta Futura/Pago ahora vs. Spot", f"U$S {dif_desc_spot:.2f}", "Brecha en dólares", delta_color="off")
 
     # CONCLUSIÓN INICIAL (Necesidad de Liquidez)
     st.markdown("#### 💡 Conclusión inicial (Si necesitás la plata ahora):")
@@ -581,3 +599,5 @@ with tab4:
 
     df_sim = pd.DataFrame(filas)
     st.dataframe(df_sim, use_container_width=True, hide_index=True)
+
+```
