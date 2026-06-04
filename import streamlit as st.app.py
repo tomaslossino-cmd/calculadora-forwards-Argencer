@@ -130,41 +130,42 @@ with tab1:
     
     # Cálculos matemáticos (Pase)
     if dias_plazo_est > 0:
+        # Tasas Directas
         tasa_directa_spot_fwd = ((p_forward_est / p_spot_est) - 1) * 100
+        tasa_directa_desc_fwd = ((p_forward_est / p_desc_est) - 1) * 100
+        
+        # Tasas Nominales Anuales (TNA)
         tna_spot_fwd = tasa_directa_spot_fwd * (365 / dias_plazo_est)
-        tna_desc_fwd = ((p_forward_est / p_desc_est) - 1) * (365 / dias_plazo_est) * 100
+        tna_desc_fwd = tasa_directa_desc_fwd * (365 / dias_plazo_est)
     else:
         tasa_directa_spot_fwd = 0.0
+        tasa_directa_desc_fwd = 0.0
         tna_spot_fwd = 0.0
         tna_desc_fwd = 0.0
 
-    p1, p2, p3 = st.columns(3)
-    p1.metric("Precio Spot (U$S)", f"U$S {p_spot_est:.2f}")
-    p2.metric("Precio Forward (U$S)", f"U$S {p_forward_est:.2f}")
-    p3.metric("Precio Venta Futura/Pago ahora (U$S)", f"U$S {p_desc_est:.2f}")
-
-    st.markdown("<br>", unsafe_allow_html=True) # Espacio sutil
-
-    t1, t2, t3 = st.columns(3)
-    
-    # Cálculos de diferencias en USD
-    pase_fwd_spot = p_forward_est - p_spot_est
-    pase_fwd_desc = p_forward_est - p_desc_est
     dif_desc_spot = p_desc_est - p_spot_est
+
+    # ── NUEVO DISEÑO EN 5 COLUMNAS INTERCALADAS ──
+    col_p1, col_t1, col_p2, col_t2, col_p3 = st.columns(5)
     
-    with t1:
-        st.metric("TNA Implícita Spot vs. Forward", f"{tna_spot_fwd:.2f}%", f"Pase Fwd-Spot: U$S {pase_fwd_spot:.2f}", delta_color="off")
-        st.markdown("<br>", unsafe_allow_html=True) # Espacio para acomodar visualmente
-        # Nueva Tasa Directa agregada debajo
-        st.metric("Tasa Directa Spot vs. Forward", f"{tasa_directa_spot_fwd:.2f}%", f"Pase Fwd-Spot: U$S {pase_fwd_spot:.2f}", delta_color="off")
+    with col_p1:
+        st.metric("Precio Spot (U$S)", f"U$S {p_spot_est:.2f}")
+        
+    with col_t1:
+        st.metric("Spot vs. Forward", f"{tna_spot_fwd:.2f}%", f"Tasa Directa: {tasa_directa_spot_fwd:.2f}%", delta_color="off")
+        
+    with col_p2:
+        st.metric("Precio Forward (U$S)", f"U$S {p_forward_est:.2f}")
+        
+    with col_t2:
+        st.metric("V. Futura vs. Forward", f"{tna_desc_fwd:.2f}%", f"Tasa Directa: {tasa_directa_desc_fwd:.2f}%", delta_color="off")
+        
+    with col_p3:
+        st.metric("Precio Venta Futura (U$S)", f"U$S {p_desc_est:.2f}", f"Brecha vs Spot: U$S {dif_desc_spot:.2f}", delta_color="off")
 
-    with t2:
-        st.metric("TNA Implícita Venta Futura/Pago ahora vs. Forward", f"{tna_desc_fwd:.2f}%", f"Pase Fwd-Venta Futura: U$S {pase_fwd_desc:.2f}", delta_color="off")
-
-    with t3:
-        st.metric("Diferencia Venta Futura/Pago ahora vs. Spot", f"U$S {dif_desc_spot:.2f}", "Brecha en dólares", delta_color="off")
 
     # CONCLUSIÓN INICIAL (Necesidad de Liquidez)
+    st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("#### 💡 Conclusión inicial (Si necesitás la plata ahora):")
     if tna_spot_fwd > tna_desc_fwd:
         st.success("✅ **Conviene elegir VENTA FUTURA/PAGO AHORA**. La tasa implícita que pagás por adelantar el forward es menor que el altísimo costo de oportunidad de vender al precio Spot.")
