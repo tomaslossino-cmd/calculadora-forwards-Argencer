@@ -5,7 +5,7 @@ App Streamlit unificada con cuatro módulos:
   1. Descuento de contratos (Nera / factoring)
   2. Tasa implícita entre precio spot y forward
   3. Tasas disponibles en el mercado
-  4. Estrategia: Spot vs Forward vs Pago Ahora (Análisis completo)
+  4. Estrategia: Spot vs Forward vs Descuento (Análisis completo)
 """
 
 import streamlit as st
@@ -517,6 +517,11 @@ with tab4:
     else:
         tna_spot_fwd = 0.0
         tna_desc_fwd = 0.0
+
+    # ── NUEVA SECCIÓN DE RESULTADOS: PRECIOS + TASAS ──
+    p1, p2 = st.columns(2)
+    p1.metric("Precio Spot (U$S)", f"U$S {p_spot_est:.2f}")
+    p2.metric("Precio Descontado (pago ahora, entrega futura) (U$S)", f"U$S {p_desc_est:.2f}")
 
     t1, t2 = st.columns(2)
     t1.metric("TNA Implícita Spot vs. Forward (= PASE)", f"{tna_spot_fwd:.2f}%")
