@@ -5,7 +5,7 @@ App Streamlit unificada con cuatro módulos:
   1. Descuento de contratos (Nera / factoring)
   2. Tasa implícita entre precio spot y forward
   3. Tasas disponibles en el mercado
-  4. Estrategia: Spot vs Forward vs Descuento (Análisis completo)
+  4. Estrategia: Spot vs Forward vs Venta Futura/Pago ahora
 """
 
 import streamlit as st
@@ -67,7 +67,7 @@ tab1, tab2, tab3, tab4 = st.tabs([
     "💵 Descuento de contrato", 
     "📊 Tasa implícita spot / fwd", 
     "📋 Tasas de mercado",
-    "⚖️ Estrategia: Spot vs Fwd vs Descuento"
+    "⚖️ Estrategia: Spot vs Fwd vs Venta Futura/Pago ahora"
 ])
 
 
@@ -455,7 +455,7 @@ with tab3:
 
 
 # ════════════════════════════════════════════════════════════════════════════
-# TAB 4 — Estrategia: Spot vs Forward vs Descuento
+# TAB 4 — Estrategia: Spot vs Forward vs Venta Futura/Pago ahora
 # ════════════════════════════════════════════════════════════════════════════
 
 with tab4:
@@ -468,7 +468,7 @@ with tab4:
     with c1:
         p_spot_est = st.number_input("Precio Spot (U$S)", value=318.0, step=1.0)
         p_forward_est = st.number_input("Precio Forward (U$S)", value=338.0, step=1.0)
-        p_desc_est = st.number_input("Precio Descontado (pago ahora, entrega futura) (U$S)", value=328.0, step=1.0)
+        p_desc_est = st.number_input("Precio Venta Futura/Pago ahora (U$S)", value=328.0, step=1.0)
 
     with c2:
         # Lógica para generar los meses futuros y su 1er día hábil automáticamente
@@ -521,7 +521,7 @@ with tab4:
     # ── NUEVA SECCIÓN DE RESULTADOS: PRECIOS + TASAS + PASES ──
     p1, p2 = st.columns(2)
     p1.metric("Precio Spot (U$S)", f"U$S {p_spot_est:.2f}")
-    p2.metric("Precio Descontado (pago ahora, entrega futura) (U$S)", f"U$S {p_desc_est:.2f}")
+    p2.metric("Precio Venta Futura/Pago ahora (U$S)", f"U$S {p_desc_est:.2f}")
 
     st.markdown("<br>", unsafe_allow_html=True) # Espacio sutil
 
@@ -534,15 +534,15 @@ with tab4:
     
     # Se usa delta_color="off" para que el texto salga en un gris profesional
     t1.metric("TNA Implícita Spot vs. Forward", f"{tna_spot_fwd:.2f}%", f"Pase Fwd-Spot: U$S {pase_fwd_spot:.2f}", delta_color="off")
-    t2.metric("TNA Implícita Descontado vs. Forward", f"{tna_desc_fwd:.2f}%", f"Pase Fwd-Desc: U$S {pase_fwd_desc:.2f}", delta_color="off")
-    t3.metric("Diferencia Descontado vs. Spot", f"U$S {dif_desc_spot:.2f}", "Brecha en dólares", delta_color="off")
+    t2.metric("TNA Implícita Venta Futura/Pago ahora vs. Forward", f"{tna_desc_fwd:.2f}%", f"Pase Fwd-Venta Futura: U$S {pase_fwd_desc:.2f}", delta_color="off")
+    t3.metric("Diferencia Venta Futura/Pago ahora vs. Spot", f"U$S {dif_desc_spot:.2f}", "Brecha en dólares", delta_color="off")
 
     # CONCLUSIÓN INICIAL (Necesidad de Liquidez)
     st.markdown("#### 💡 Conclusión inicial (Si necesitás la plata ahora):")
     if tna_spot_fwd > tna_desc_fwd:
-        st.success("✅ **Conviene elegir PAGO AHORA (Descuento)**. La tasa implícita que pagás por adelantar el forward es menor que el altísimo costo de oportunidad de vender al precio Spot.")
+        st.success("✅ **Conviene elegir VENTA FUTURA/PAGO AHORA**. La tasa implícita que pagás por adelantar el forward es menor que el altísimo costo de oportunidad de vender al precio Spot.")
     else:
-        st.warning("✅ **Conviene vender SPOT directamente**. El castigo en precio que te hacen por el Descuento es demasiado alto; te rinde más ir directo al mercado Spot físico.")
+        st.warning("✅ **Conviene vender SPOT directamente**. El castigo en precio que te hacen por la Venta Futura/Pago ahora es demasiado alto; te rinde más ir directo al mercado Spot físico.")
 
     st.markdown("---")
     st.subheader("3. Si podés Esperar e Invertir")
@@ -559,7 +559,7 @@ with tab4:
     e1, e2, e3 = st.columns(3)
     e1.metric("Estrategia Forward directo", f"U$S {estrategia_fwd:.2f}")
     e2.metric("Estrategia Spot + Inversión", f"U$S {estrategia_spot:.2f}")
-    e3.metric("Estrategia Descuento + Inversión", f"U$S {estrategia_desc:.2f}")
+    e3.metric("Estrategia Venta Futura/Pago ahora + Inversión", f"U$S {estrategia_desc:.2f}")
 
     # CONCLUSIÓN FINAL (Maximizar Capital)
     st.markdown("#### 🏆 Conclusión Final (Si podés esperar e Invertir):")
@@ -567,7 +567,7 @@ with tab4:
     resultados_est = {
         "Estrategia Forward directo": estrategia_fwd,
         "Estrategia Spot + Inversión": estrategia_spot,
-        "Estrategia Descuento + Inversión": estrategia_desc
+        "Estrategia Venta Futura/Pago ahora + Inversión": estrategia_desc
     }
     
     mejor_estrategia = max(resultados_est, key=resultados_est.get)
