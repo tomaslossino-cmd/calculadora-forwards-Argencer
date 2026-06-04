@@ -188,7 +188,7 @@ with tab2:
 
     ri = calcular_tasa_implicita(spot, fwd, int(dias_t))
     contango = ri["tasa_directa"] >= 0
-    situacion = "🟢 CONTANGO (forward > spot)" if contango else "🔴 BACKWARDATION (forward < spot)"
+    situacion = "🟢 forward > spot" if contango else "🔴 forward < spot"
 
     with col_b:
         st.markdown(f"**Situación de mercado:** {situacion}")
