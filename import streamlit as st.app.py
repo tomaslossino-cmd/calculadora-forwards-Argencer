@@ -195,7 +195,7 @@ with tab2:
         st.metric("Tasa directa del período", f"{ri['tasa_directa'] * 100:+.4f}%")
         st.metric("TNA implícita", f"{ri['tna'] * 100:+.4f}%")
         st.metric("TEA implícita", f"{ri['tea'] * 100:+.4f}%")
-        st.metric("Premio / descuento absoluto", f"{moneda.split('/')[0]} {ri['premio_absoluto']:+,.2f}")
+        st.metric("Pase absoluto", f"{moneda.split('/')[0]} {ri['premio_absoluto']:+,.2f}")
 
     st.divider()
 
