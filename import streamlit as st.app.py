@@ -1,14 +1,16 @@
 """
-Calculadora de Contratos Forward Agrícolas
-==========================================
-App Streamlit unificada con dos módulos:
+Calculadora de Contratos Forward Agrícolas e Inversiones
+========================================================
+App Streamlit unificada con cuatro módulos:
   1. Descuento de contratos (Nera / factoring)
   2. Tasa implícita entre precio spot y forward
+  3. Tasas disponibles en el mercado
+  4. Estrategia: Spot vs Forward vs Pago Ahora (Análisis completo)
 """
 
 import streamlit as st
 import pandas as pd
-
+import datetime
 
 # ── Lógica de cálculo ────────────────────────────────────────────────────────
 
@@ -53,15 +55,20 @@ def calcular_forward_justo(precio_spot: float, tna: float, dias: int) -> float:
 # ── Configuración de la app ──────────────────────────────────────────────────
 
 st.set_page_config(
-    page_title="Forward Agrícola",
+    page_title="Suite Financiera Agro",
     page_icon="🌾",
     layout="wide",
 )
 
-st.title("🌾 Calculadora de Contratos Forward Agrícolas")
-st.caption("Herramienta interna — Corredora de granos")
+st.title("🌾 Suite de Herramientas Financieras Agrícolas")
+st.caption("Herramienta interna — Corredora de granos Argencer")
 
-tab1, tab2, tab3 = st.tabs(["💵 Descuento de contrato", "📊 Tasa implícita spot / forward", "📋 Tasas disponibles en el mercado"])
+tab1, tab2, tab3, tab4 = st.tabs([
+    "💵 Descuento de contrato", 
+    "📊 Tasa implícita spot / fwd", 
+    "📋 Tasas de mercado",
+    "⚖️ Estrategia: Spot vs Fwd vs Descuento"
+])
 
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -86,7 +93,7 @@ with tab1:
             step=100_000.0,
             format="%.2f",
         )
-        tna_pct = st.number_input(
+        tna_pct_val = st.number_input(
             "Tasa de descuento (TNA %)",
             min_value=0.1,
             max_value=500.0,
@@ -94,7 +101,7 @@ with tab1:
             step=0.5,
             format="%.2f",
         )
-        tna_pct = st.slider("", min_value=0.1, max_value=300.0, value=tna_pct, step=0.5, label_visibility="collapsed")
+        tna_pct = st.slider("", min_value=0.1, max_value=300.0, value=tna_pct_val, step=0.5, label_visibility="collapsed")
         dias_d = st.number_input(
             "Días al vencimiento",
             min_value=1,
@@ -445,3 +452,109 @@ with tab3:
         + '</div>'
     )
     st.markdown(html_cuadro, unsafe_allow_html=True)
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# TAB 4 — Estrategia: Spot vs Forward vs Descuento
+# ════════════════════════════════════════════════════════════════════════════
+
+with tab4:
+    st.header("Análisis de Estrategia (En Dólares)")
+    st.markdown("Evalúa la conveniencia de liquidar hoy o a futuro, invirtiendo la liquidez.")
+
+    st.subheader("1. Datos a completar (Inputs)")
+    c1, c2 = st.columns(2)
+
+    with c1:
+        p_spot_est = st.number_input("Precio Spot (U$S)", value=318.0, step=1.0)
+        p_forward_est = st.number_input("Precio Forward (U$S)", value=338.0, step=1.0)
+        p_desc_est = st.number_input("Precio Descontado (pago ahora, entrega futura) (U$S)", value=328.0, step=1.0)
+
+    with c2:
+        # Lógica para generar los meses futuros y su 1er día hábil automáticamente
+        hoy_dt = datetime.date.today()
+        meses_nombres = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+        opciones_meses = []
+        dicc_fechas = {}
+
+        for i in range(1, 15): # Mostramos 14 meses hacia adelante
+            mes_num = hoy_dt.month + i - 1
+            year_calc = hoy_dt.year + (mes_num // 12)
+            mes_index = mes_num % 12
+            nombre_mes = f"{meses_nombres[mes_index]} {year_calc}"
+            opciones_meses.append(nombre_mes)
+
+            # Buscamos el primer día del mes
+            primer_dia = datetime.date(year_calc, mes_index + 1, 1)
+            
+            # Ajuste a primer día hábil (salta sábado y domingo)
+            if primer_dia.weekday() == 5: # 5 es Sábado
+                primer_habil = primer_dia + datetime.timedelta(days=2)
+            elif primer_dia.weekday() == 6: # 6 es Domingo
+                primer_habil = primer_dia + datetime.timedelta(days=1)
+            else:
+                primer_habil = primer_dia
+
+            dicc_fechas[nombre_mes] = primer_habil
+
+        # Input de selección de mes
+        mes_futuro = st.selectbox("Mes futuro (Entrega)", opciones_meses)
+        
+        # Cálculos de fechas
+        fecha_objetivo = dicc_fechas[mes_futuro]
+        dias_plazo_est = (fecha_objetivo - hoy_dt).days
+
+        # Muestra el plazo automático
+        st.info(f"📅 **Plazo aproximado:** {dias_plazo_est} días (Calculado automáticamente hasta el 1° día hábil: {fecha_objetivo.strftime('%d/%m/%Y')})")
+
+    st.markdown("---")
+    st.subheader("2. Análisis de Tasas Implícitas")
+    
+    # Cálculos matemáticos (Pase)
+    if dias_plazo_est > 0:
+        tna_spot_fwd = ((p_forward_est / p_spot_est) - 1) * (365 / dias_plazo_est) * 100
+        tna_desc_fwd = ((p_forward_est / p_desc_est) - 1) * (365 / dias_plazo_est) * 100
+    else:
+        tna_spot_fwd = 0.0
+        tna_desc_fwd = 0.0
+
+    t1, t2 = st.columns(2)
+    t1.metric("TNA Implícita Spot vs. Forward (= PASE)", f"{tna_spot_fwd:.2f}%")
+    t2.metric("TNA Implícita Descontado vs. Forward", f"{tna_desc_fwd:.2f}%")
+
+    # CONCLUSIÓN INICIAL (Necesidad de Liquidez)
+    st.markdown("#### 💡 Conclusión inicial (Si necesitás la plata ahora):")
+    if tna_spot_fwd > tna_desc_fwd:
+        st.success("✅ **Conviene elegir PAGO AHORA (Descuento)**. La tasa implícita que pagás por adelantar el forward es menor que el altísimo costo de oportunidad de vender al precio Spot.")
+    else:
+        st.warning("✅ **Conviene vender SPOT directamente**. El castigo en precio que te hacen por el Descuento es demasiado alto; te rinde más ir directo al mercado Spot físico.")
+
+    st.markdown("---")
+    st.subheader("3. Si podés Esperar e Invertir")
+
+    tea_usd_est = st.number_input("TEA/TIR en USD del instrumento disponible (%)", value=6.0, step=0.1)
+
+    # Cálculos de Inversión (Aplicando fórmula de capitalización exponencial a los días exactos)
+    estrategia_fwd = p_forward_est
+    factor_inv = (1 + (tea_usd_est / 100)) ** (dias_plazo_est / 365)
+    
+    estrategia_spot = p_spot_est * factor_inv
+    estrategia_desc = p_desc_est * factor_inv
+
+    e1, e2, e3 = st.columns(3)
+    e1.metric("Estrategia Forward directo", f"U$S {estrategia_fwd:.2f}")
+    e2.metric("Estrategia Spot + Inversión", f"U$S {estrategia_spot:.2f}")
+    e3.metric("Estrategia Descuento + Inversión", f"U$S {estrategia_desc:.2f}")
+
+    # CONCLUSIÓN FINAL (Maximizar Capital)
+    st.markdown("#### 🏆 Conclusión Final (Si podés esperar e Invertir):")
+    
+    resultados_est = {
+        "Estrategia Forward directo": estrategia_fwd,
+        "Estrategia Spot + Inversión": estrategia_spot,
+        "Estrategia Descuento + Inversión": estrategia_desc
+    }
+    
+    mejor_estrategia = max(resultados_est, key=resultados_est.get)
+
+    st.success(f"📈 La mejor alternativa comercial y financiera es ir por la **{mejor_estrategia}**, alcanzando un capital proyectado de **U$S {resultados_est[mejor_estrategia]:.2f}**.")
