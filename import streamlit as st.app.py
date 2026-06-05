@@ -79,7 +79,7 @@ with tab1:
     st.header("Análisis de Estrategia (En Dólares)")
     st.markdown("Completa los precios y evalua que condicion es la mas favorable")
 
-    st.subheader("1. Datos a completar (Inputs)")
+    st.subheader("1. Datos a completar")
     c1, c2 = st.columns(2)
 
     with c1:
