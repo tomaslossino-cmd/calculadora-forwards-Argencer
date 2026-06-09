@@ -300,9 +300,9 @@ with tab1:
     # CONCLUSIÓN INICIAL
     st.markdown("#### 💡 Conclusión inicial (Si necesitás la plata ahora):")
     if tna_spot_fwd > tna_desc_fwd:
-        st.success("✅ **Conviene elegir VENTA FUTURA/PAGO AHORA**. La tasa implícita que pagás por adelantar el forward es menor que el altísimo costo de oportunidad de vender al precio Spot.")
+        st.success("✅ **Conviene elegir VENTA FUTURA/PAGO AHORA**")
     else:
-        st.warning("✅ **Conviene vender SPOT directamente**. El castigo en precio que te hacen por la Venta Futura/Pago ahora es demasiado alto; te rinde más ir directo al mercado Spot físico.")
+        st.warning("✅ **Conviene vender SPOT directamente**")
 
     # ── 3. SI PODÉS ESPERAR E INVERTIR ───────────────────────────────────────
     st.markdown("---")
