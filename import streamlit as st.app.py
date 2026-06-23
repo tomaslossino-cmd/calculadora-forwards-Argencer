@@ -67,7 +67,7 @@ tab1, tab2, tab3, tab4 = st.tabs([
     "⚖️ Estrategia: Spot vs Fwd vs Venta Futura/Pago ahora",
     "📋 Tasas de mercado",
     "📊 Tasa implícita spot / fwd",
-    "💵 Descuento de contrato"
+    "💵 Descuento de Precio/Contrato"
 ])
 
 
@@ -614,7 +614,7 @@ with tab4:
 
     with col_inp:
         vf = st.number_input(
-            "Monto del contrato — valor futuro ($)",
+            "Precio/contrato — valor futuro ($)",
             min_value=1.0, value=10_000_000.0, step=100_000.0, format="%.2f",
         )
         tna_pct_val = st.number_input(
