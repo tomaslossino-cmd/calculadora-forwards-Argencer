@@ -643,7 +643,7 @@ with tab4:
 | TNA | {res['tna'] * 100:.2f}% |
 | Factor de descuento | {res['factor_descuento']:.6f} |
 | Monto presente | $ {res['valor_presente']:,.2f} |
-| Interés (costo Nera) | $ {res['interes_descontado']:,.2f} |
+| Interés (costo) | $ {res['interes_descontado']:,.2f} |
 | % descontado | {res['porcentaje_descontado']:.2f}% |
 | TEA | {res['tea'] * 100:.2f}% |
 """)
