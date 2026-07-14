@@ -67,7 +67,7 @@ tab1, tab2, tab3, tab4 = st.tabs([
     "⚖️ Estrategia: Spot vs Fwd vs Venta Futura/Pago ahora",
     "📋 Tasas de mercado",
     "📊 Tasa implícita spot / fwd",
-    "💵 Descuento de Precio/Contrato"
+    "💵 Descuento de contrato"
 ])
 
 
@@ -79,7 +79,7 @@ with tab1:
     st.header("Análisis de Estrategia (En Dólares)")
     st.markdown("Completa los precios y evalua que condicion es la mas favorable")
 
-    st.subheader("1. Datos a completar")
+    st.subheader("1. Datos a completar (Inputs)")
     c1, c2 = st.columns(2)
 
     with c1:
@@ -296,13 +296,6 @@ with tab1:
     )
 
     st.markdown("<br>", unsafe_allow_html=True)
-
-    # CONCLUSIÓN INICIAL
-    st.markdown("#### 💡 Conclusión inicial (Si necesitás la plata ahora):")
-    if tna_spot_fwd > tna_desc_fwd:
-        st.success("✅ **Conviene elegir VENTA FUTURA/PAGO AHORA**")
-    else:
-        st.warning("✅ **Conviene vender SPOT directamente**")
 
     # ── 3. SI PODÉS ESPERAR E INVERTIR ───────────────────────────────────────
     st.markdown("---")
@@ -614,7 +607,7 @@ with tab4:
 
     with col_inp:
         vf = st.number_input(
-            "Precio/contrato — valor futuro ($)",
+            "Monto del contrato — valor futuro ($)",
             min_value=1.0, value=10_000_000.0, step=100_000.0, format="%.2f",
         )
         tna_pct_val = st.number_input(
@@ -643,7 +636,7 @@ with tab4:
 | TNA | {res['tna'] * 100:.2f}% |
 | Factor de descuento | {res['factor_descuento']:.6f} |
 | Monto presente | $ {res['valor_presente']:,.2f} |
-| Interés (costo) | $ {res['interes_descontado']:,.2f} |
+| Interés (costo Nera) | $ {res['interes_descontado']:,.2f} |
 | % descontado | {res['porcentaje_descontado']:.2f}% |
 | TEA | {res['tea'] * 100:.2f}% |
 """)
