@@ -426,9 +426,9 @@ with tab2:
 
     # ── Tasas — editá estos valores cuando cambien ──────────────────────────
     ars_pf   = "17%"
-    ars_cau  = "20% – 22%"
-    ars_fmm  = "16,0%"
-    ars_frec = "32%"
+    ars_cau  = "25% – 23%"
+    ars_fmm  = "17,0%"
+    ars_frec = "30%"
 
     usd_pf   = "2%"
     usd_cau  = "2%"
